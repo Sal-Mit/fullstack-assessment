@@ -118,11 +118,25 @@ export const metadata: Metadata = {
 
 ---
 
+#### 5. Product list showed only 20 products with no way to see more (misleading) — **Fixed**
+
+**What I saw:** With "All categories" selected, the list showed "Showing 20 products" and only 20 cards. There was no indication that more products existed and no way to view them, which was misleading.
+
+**Root cause:** The API was called with `limit=20` and no `offset`; the UI displayed only the count of the current slice (`products.length`) and had no pagination.
+
+**Fix:** In `app/page.tsx`:
+- **Transparency:** The API returns `total`; the UI now shows **"Showing 1–20 of 150 products"** (or the current range) when there are more than 20 results so the user knows more exist.
+- **Pagination:** Added page state and pass `offset=(page-1)*20` to the API. When there is more than one page, show **Previous / Next** buttons and **"Page X of Y"**. Users can also **type a page number** in an input and press Enter or blur to jump to that page (value is validated and clamped). Page resets to 1 when search or filters change.
+
+**Why this approach:** Fixing the misleading UX required both making the total visible and giving users a way to access the rest of the results; pagination with a type-to-jump input keeps the 20-per-page limit (good for performance) while making the list complete and honest.
+
+---
+
 ### Design
 
 Issues that affected visual consistency or layout.
 
-#### 5. Product list cards had inconsistent height (View Details button not aligned) — **Fixed**
+#### 6. Product list cards had inconsistent height (View Details button not aligned) — **Fixed**
 
 **What I saw:** Product cards in the grid had different heights because the "View Details" button sat right under the content. Cards with longer titles or more badges pushed the button down, making the grid look uneven.
 
@@ -142,7 +156,7 @@ The Card already had `flex flex-col h-full`, so no change there.
 
 ---
 
-#### 6. Product detail — Features section had uneven padding above the heading — **Fixed**
+#### 7. Product detail — Features section had uneven padding above the heading — **Fixed**
 
 **What I saw:** On the product detail page, the "Features" card had a large gap above the "Features" heading compared to the left edge and the top border of the card, so the spacing felt inconsistent.
 
@@ -177,7 +191,8 @@ Quick reference by category.
 | | 2 | Image host not configured → runtime error | Fixed |
 | **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
 | | 4 | Tab title and icon not app-specific | Fixed |
-| **Design** | 5 | Product cards inconsistent height | Fixed |
-| | 6 | Features heading padding on product detail | Fixed |
+| | 5 | Product list showed only 20 products, no way to see more (misleading) | Fixed |
+| **Design** | 6 | Product cards inconsistent height | Fixed |
+| | 7 | Features heading padding on product detail | Fixed |
 
 

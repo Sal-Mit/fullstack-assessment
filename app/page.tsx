@@ -19,10 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { isAllowedImageUrl } from "@/lib/image-utils";
+
+const PAGE_SIZE = 20;
 
 interface Product {
   stacklineSku: string;
@@ -44,6 +46,24 @@ export default function Home() {
     string | undefined
   >(undefined);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
+
+  const handlePageInputSubmit = () => {
+    const num = parseInt(pageInput, 10);
+    if (!Number.isNaN(num) && num >= 1 && num <= totalPages) {
+      setPage(num);
+    } else {
+      setPageInput(String(page));
+    }
+  };
 
   useEffect(() => {
     fetch("/api/categories")
@@ -68,15 +88,17 @@ export default function Home() {
     if (search) params.append("search", search);
     if (selectedCategory) params.append("category", selectedCategory);
     if (selectedSubCategory) params.append("subCategory", selectedSubCategory);
-    params.append("limit", "20");
+    params.append("limit", String(PAGE_SIZE));
+    params.append("offset", String((page - 1) * PAGE_SIZE));
 
     fetch(`/api/products?${params}`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products);
+        setTotalCount(data.total ?? data.products.length);
         setLoading(false);
       });
-  }, [search, selectedCategory, selectedSubCategory]);
+  }, [search, selectedCategory, selectedSubCategory, page]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,14 +112,20 @@ export default function Home() {
               <Input
                 placeholder="Search products..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-10"
               />
             </div>
 
             <Select
               value={selectedCategory ?? ""}
-              onValueChange={(value) => setSelectedCategory(value || undefined)}
+              onValueChange={(value) => {
+                setSelectedCategory(value || undefined);
+                setPage(1);
+              }}
             >
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="All Categories" />
@@ -114,9 +142,10 @@ export default function Home() {
             {selectedCategory && subCategories.length > 0 && (
               <Select
                 value={selectedSubCategory ?? ""}
-                onValueChange={(value) =>
-                  setSelectedSubCategory(value || undefined)
-                }
+                onValueChange={(value) => {
+                  setSelectedSubCategory(value || undefined);
+                  setPage(1);
+                }}
               >
                 <SelectTrigger className="w-full md:w-[200px]">
                   <SelectValue placeholder="All Subcategories" />
@@ -138,6 +167,7 @@ export default function Home() {
                   setSearch("");
                   setSelectedCategory(undefined);
                   setSelectedSubCategory(undefined);
+                  setPage(1);
                 }}
               >
                 Clear Filters
@@ -159,7 +189,10 @@ export default function Home() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground mb-4">
-              Showing {products.length} products
+              {totalCount > PAGE_SIZE
+                ? `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, totalCount)} of ${totalCount} products`
+                : `Showing ${products.length} product${products.length === 1 ? "" : "s"}`
+              }
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
@@ -211,6 +244,47 @@ export default function Home() {
                 </Link>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground">Page</p>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={totalPages}
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handlePageInputSubmit()}
+                    onBlur={handlePageInputSubmit}
+                    className="w-14 h-8 text-center text-sm"
+                  />
+                  <p className="text-sm text-muted-foreground">of {totalPages}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    disabled={page >= totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>
