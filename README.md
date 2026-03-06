@@ -74,7 +74,25 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 
 Issues that affected user flow, clarity, or expectations.
 
+#### 3. After "Clear Filters", category dropdown still showed last selected value — **Fixed**
 
+**What I saw:** Clicking "Clear Filters" correctly cleared the product results, but the category dropdown still displayed the previously selected category name instead of the placeholder "All Categories".
+
+**Screenshot:**  
+![Category dropdown still showing last selected value after Clear Filters](docs/screenshots/dropdown_label_not_reset.png)
+
+**Root cause:** The Select component was controlled with `value={selectedCategory}`. When we set `selectedCategory` to `undefined`, the Radix Select in this setup did not reliably show the placeholder again.
+
+**Fix:** In `app/page.tsx`, both category and subcategory Selects now use an explicit empty string when no value is selected so the placeholder shows:
+
+```ts
+value={selectedCategory ?? ""}
+value={selectedSubCategory ?? ""}
+```
+
+The existing `onValueChange` already maps empty string to `undefined` (`value || undefined`), so behavior stays correct.
+
+**Why this approach:** Minimal change that matches how controlled Select components expect to represent "no selection" while still showing the placeholder.
 
 ---
 
@@ -104,7 +122,7 @@ Quick reference by category.
 |----------|---|--------|--------|
 | **Functionality** | 1 | Subcategory dropdown same for every category | Fixed |
 | | 2 | Image host not configured → runtime error | Fixed |
-| **UX** | 3 | Clear Filters — category dropdown label not reset | Pending |
+| **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
 | | 4 | Tab title and icon not app-specific | Pending |
 | **Design** | 5 | Product cards inconsistent height | Pending |
 | | 6 | Features heading padding on product detail | Pending |

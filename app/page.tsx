@@ -96,7 +96,7 @@ export default function Home() {
             </div>
 
             <Select
-              value={selectedCategory}
+              value={selectedCategory ?? ""}
               onValueChange={(value) => setSelectedCategory(value || undefined)}
             >
               <SelectTrigger className="w-full md:w-[200px]">
@@ -113,7 +113,7 @@ export default function Home() {
 
             {selectedCategory && subCategories.length > 0 && (
               <Select
-                value={selectedSubCategory}
+                value={selectedSubCategory ?? ""}
                 onValueChange={(value) =>
                   setSelectedSubCategory(value || undefined)
                 }
