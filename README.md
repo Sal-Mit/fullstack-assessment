@@ -1,5 +1,19 @@
 # Stackline Full Stack Assignment
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [My Approach](#my-approach)
+- [Bugs & Issues Fixed](#bugs-issues-fixed)
+  - [Functionality](#functionality)
+  - [UX](#ux)
+  - [Design](#design)
+- [Error Handling Improvements](#error-handling-improvements)
+- [Summary](#summary)
+
+---
+
+<a id="getting-started"></a>
 ## Getting Started
 
 ```bash
@@ -11,6 +25,7 @@ Open [http://localhost:3000](http://localhost:3000) to run the application.
 
 ---
 
+<a id="my-approach"></a>
 ## My Approach
 
 After receiving the codebase, I focused on understanding the application from a **user's perspective** before diving into code.
@@ -23,12 +38,15 @@ Below, issues are **grouped by category**. Each bug’s full write-up is added h
 
 ---
 
+<a id="bugs-issues-fixed"></a>
 ## Bugs & Issues Fixed
 
+<a id="functionality"></a>
 ### Functionality
 
 Issues that affected correct behavior or caused errors.
 
+<a id="bug-1"></a>
 #### 1. Subcategory dropdown showed same options for every category — **Fixed**
 
 **What I saw:** After selecting a category (e.g. "Tablets"), the subcategory dropdown appeared but listed subcategories from *all* categories, not just the selected one. This made filtering misleading.
@@ -48,6 +66,7 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 
 ---
 
+<a id="bug-2"></a>
 #### 2. Runtime error when search returned no results (unconfigured image host) — **Fixed**
 
 **What I saw:** When searching for something that matched no products (e.g. typing "x"), or when products from the list used a different image host, the app threw a runtime error:  
@@ -70,10 +89,12 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 
 ---
 
+<a id="ux"></a>
 ### UX
 
 Issues that affected user flow, clarity, or expectations.
 
+<a id="bug-3"></a>
 #### 3. After "Clear Filters", category dropdown still showed last selected value — **Fixed**
 
 **What I saw:** Clicking "Clear Filters" correctly cleared the product results, but the category dropdown still displayed the previously selected category name instead of the placeholder "All Categories".
@@ -96,6 +117,7 @@ The existing `onValueChange` already maps empty string to `undefined` (`value ||
 
 ---
 
+<a id="bug-4"></a>
 #### 4. Tab showed "Create Next App" and Next.js icon instead of app branding — **Fixed**
 
 **What I saw:** The browser tab showed the default Next.js favicon and the title "Create Next App" instead of the application name and app-specific branding.
@@ -118,6 +140,7 @@ export const metadata: Metadata = {
 
 ---
 
+<a id="bug-5"></a>
 #### 5. Product list showed only 20 products with no way to see more (misleading) — **Fixed**
 
 **What I saw:** With "All categories" selected, the list showed "Showing 20 products" and only 20 cards. There was no indication that more products existed and no way to view them, which was misleading.
@@ -132,10 +155,12 @@ export const metadata: Metadata = {
 
 ---
 
+<a id="design"></a>
 ### Design
 
 Issues that affected visual consistency or layout.
 
+<a id="bug-6"></a>
 #### 6. Product list cards had inconsistent height (View Details button not aligned) — **Fixed**
 
 **What I saw:** Product cards in the grid had different heights because the "View Details" button sat right under the content. Cards with longer titles or more badges pushed the button down, making the grid look uneven.
@@ -156,6 +181,7 @@ The Card already had `flex flex-col h-full`, so no change there.
 
 ---
 
+<a id="bug-7"></a>
 #### 7. Product detail — Features section had uneven padding above the heading — **Fixed**
 
 **What I saw:** On the product detail page, the "Features" card had a large gap above the "Features" heading compared to the left edge and the top border of the card, so the spacing felt inconsistent.
@@ -171,28 +197,28 @@ The Card already had `flex flex-col h-full`, so no change there.
 
 ---
 
+<a id="error-handling-improvements"></a>
 ## Error Handling Improvements
 
 While fixing the above, I improved error handling so the app doesn’t get stuck or leave the user without feedback when something fails:
 
-- **List page API calls** — The product list, categories, and subcategories fetches had no `.catch()`. If an API failed, `loading` could stay `true` indefinitely. I added error handling (e.g. `.catch` or try/catch with async/await) to set loading to false and optionally show an error state or message so the user knows something went wrong.
-- **Product detail** — *(If you switch to SKU-based loading:)* When loading a product by SKU from the API, I handle 404 and network errors so the user sees a clear "Product not found" or "Something went wrong" instead of a blank or stuck screen.
-
+- **List page API calls** — The product list, categories, and subcategories fetches had no `.catch()`. If an API failed, `loading` could stay `true` indefinitely. I added `.catch()` to all three: categories and subcategories fall back to empty arrays so the dropdowns still render; the products fetch sets `loading` to false, clears the list, and shows an error message (“Could not load products. Please try again.”). I also check `res.ok` on the products response so non-2xx responses are treated as failures.
+- **Product detail** — The detail page currently reads product data from the URL (no API call). If the app is later updated to load by SKU from the API, 404 and network errors should be handled so the user sees “Product not found” or “Something went wrong” instead of a blank or stuck screen.
 
 ---
 
+<a id="summary"></a>
 ## Summary
 
 Quick reference by category.
 
-| Category | # | Issue | Status |
-|----------|---|--------|--------|
-| **Functionality** | 1 | Subcategory dropdown same for every category | Fixed |
-| | 2 | Image host not configured → runtime error | Fixed |
-| **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
-| | 4 | Tab title and icon not app-specific | Fixed |
-| | 5 | Product list showed only 20 products, no way to see more (misleading) | Fixed |
-| **Design** | 6 | Product cards inconsistent height | Fixed |
-| | 7 | Features heading padding on product detail | Fixed |
-
+| Category | # | Issue |
+|----------|---|--------|
+| **Functionality** | [1](#bug-1) | Subcategory dropdown same for every category |
+| | [2](#bug-2) | Image host not configured → runtime error |
+| **UX** | [3](#bug-3) | Clear Filters — category dropdown label not reset |
+| | [4](#bug-4) | Tab title and icon not app-specific |
+| | [5](#bug-5) | Product list showed only 20 products, no way to see more (misleading) |
+| **Design** | [6](#bug-6) | Product cards inconsistent height |
+| | [7](#bug-7) | Features heading padding on product detail |
 
