@@ -49,6 +49,7 @@ export default function Home() {
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [pageInput, setPageInput] = useState("1");
+  const [productError, setProductError] = useState<string | null>(null);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -68,14 +69,16 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data) => setCategories(data.categories));
+      .then((data) => setCategories(data.categories ?? []))
+      .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
     if (selectedCategory) {
       fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
         .then((res) => res.json())
-        .then((data) => setSubCategories(data.subCategories));
+        .then((data) => setSubCategories(data.subCategories ?? []))
+        .catch(() => setSubCategories([]));
     } else {
       setSubCategories([]);
       setSelectedSubCategory(undefined);
@@ -84,6 +87,7 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true);
+    setProductError(null);
     const params = new URLSearchParams();
     if (search) params.append("search", search);
     if (selectedCategory) params.append("category", selectedCategory);
@@ -92,11 +96,20 @@ export default function Home() {
     params.append("offset", String((page - 1) * PAGE_SIZE));
 
     fetch(`/api/products?${params}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load products");
+        return res.json();
+      })
       .then((data) => {
-        setProducts(data.products);
-        setTotalCount(data.total ?? data.products.length);
+        setProducts(data.products ?? []);
+        setTotalCount(data.total ?? (data.products?.length ?? 0));
         setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setProducts([]);
+        setTotalCount(0);
+        setProductError("Could not load products. Please try again.");
       });
   }, [search, selectedCategory, selectedSubCategory, page]);
 
@@ -181,6 +194,10 @@ export default function Home() {
         {loading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading products...</p>
+          </div>
+        ) : productError ? (
+          <div className="text-center py-12">
+            <p className="text-destructive font-medium">{productError}</p>
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
