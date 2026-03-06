@@ -189,7 +189,7 @@ export default function Home() {
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-4">
+                    <CardContent className="flex-1 min-h-0 pt-4">
                       <CardTitle className="text-base line-clamp-2 mb-2">
                         {product.title}
                       </CardTitle>
@@ -202,7 +202,7 @@ export default function Home() {
                         </Badge>
                       </CardDescription>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="mt-auto">
                       <Button variant="outline" className="w-full">
                         View Details
                       </Button>

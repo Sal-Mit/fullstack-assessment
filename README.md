@@ -122,7 +122,23 @@ export const metadata: Metadata = {
 
 Issues that affected visual consistency or layout.
 
+#### 5. Product list cards had inconsistent height (View Details button not aligned) — **Fixed**
 
+**What I saw:** Product cards in the grid had different heights because the "View Details" button sat right under the content. Cards with longer titles or more badges pushed the button down, making the grid look uneven.
+
+**Screenshot:**  
+![View Details buttons misaligned across product cards](docs/screenshots/view_details_button_alignment.png)
+
+**Root cause:** The card content (title, badges) had variable height, and the footer was not pinned to the bottom of the card.
+
+**Fix:** In `app/page.tsx`, made the card content grow and the footer stick to the bottom so all cards in the grid align:
+
+- **CardContent:** Added `flex-1 min-h-0` so the middle section takes up remaining space and the footer is pushed down. `min-h-0` allows the flex child to shrink so content doesn’t overflow.
+- **CardFooter:** Added `mt-auto` so the footer stays at the bottom of the card.
+
+The Card already had `flex flex-col h-full`, so no change there.
+
+**Why this approach:** Standard flex pattern for equal-height cards in a grid; no layout rework, just alignment so the "View Details" button lines up across all cards.
 
 ---
 
@@ -146,7 +162,7 @@ Quick reference by category.
 | | 2 | Image host not configured → runtime error | Fixed |
 | **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
 | | 4 | Tab title and icon not app-specific | Fixed |
-| **Design** | 5 | Product cards inconsistent height | Pending |
+| **Design** | 5 | Product cards inconsistent height | Fixed |
 | | 6 | Features heading padding on product detail | Pending |
 
 
