@@ -142,6 +142,21 @@ The Card already had `flex flex-col h-full`, so no change there.
 
 ---
 
+#### 6. Product detail — Features section had uneven padding above the heading — **Fixed**
+
+**What I saw:** On the product detail page, the "Features" card had a large gap above the "Features" heading compared to the left edge and the top border of the card, so the spacing felt inconsistent.
+
+**Screenshot:**  
+![Features card with uneven padding above heading](docs/screenshots/uneven_padding_features.png)
+
+**Root cause:** The `Card` component applies `py-6` (top and bottom padding). The Features block also gave `CardContent` a `pt-6` class, so the top had double padding while the sides only had `px-6`.
+
+**Fix:** In `app/product/page.tsx`, removed the extra top padding on the Features card so one source controls vertical spacing: `CardContent` now uses `className="px-6"` only (no `pt-6`). The Card’s built-in `py-6` provides even top and bottom spacing. Also added a defensive check `product.featureBullets?.length` so the section doesn’t break if `featureBullets` is missing.
+
+**Why this approach:** A single source of padding for the card keeps all sides consistent without changing the shared Card component’s default behavior elsewhere.
+
+---
+
 ## Error Handling Improvements
 
 While fixing the above, I improved error handling so the app doesn’t get stuck or leave the user without feedback when something fails:
@@ -163,6 +178,6 @@ Quick reference by category.
 | **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
 | | 4 | Tab title and icon not app-specific | Fixed |
 | **Design** | 5 | Product cards inconsistent height | Fixed |
-| | 6 | Features heading padding on product detail | Pending |
+| | 6 | Features heading padding on product detail | Fixed |
 
 

@@ -128,9 +128,9 @@ export default function ProductPage() {
               <p className="text-sm text-muted-foreground">SKU: {product.retailerSku}</p>
             </div>
 
-            {product.featureBullets.length > 0 && (
+            {Array.isArray(product.featureBullets) && product.featureBullets.length > 0 ? (
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="px-6">
                   <h2 className="text-lg font-semibold mb-3">Features</h2>
                   <ul className="space-y-2">
                     {product.featureBullets.map((feature, idx) => (
@@ -142,7 +142,7 @@ export default function ProductPage() {
                   </ul>
                 </CardContent>
               </Card>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
