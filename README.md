@@ -96,6 +96,28 @@ The existing `onValueChange` already maps empty string to `undefined` (`value ||
 
 ---
 
+#### 4. Tab showed "Create Next App" and Next.js icon instead of app branding — **Fixed**
+
+**What I saw:** The browser tab showed the default Next.js favicon and the title "Create Next App" instead of the application name and app-specific branding.
+
+**Screenshot:**  
+![Tab showing default Next.js favicon and title](docs/screenshots/tab_title_and_icon.png)
+
+**Root cause:** The root layout used the default Next.js `metadata` (title and description) from the template, and no custom favicon was set.
+
+**Fix:** In `app/layout.tsx`, updated the exported `metadata` to use the app name and a short description:
+
+```ts
+export const metadata: Metadata = {
+  title: "StackShop",
+  description: "Sample eCommerce product browsing and search",
+};
+```
+
+**Why this approach:** Metadata is the right place for document title and description in the Next.js App Router. For now only the title (and description) are changed; we don’t have a branding icon yet — once we have one, we can add it via `app/icon.png` or `app/favicon.ico` and the tab will show it. We can also add titles based on routes later (e.g. `metadata` or `generateMetadata` in each page or layout) so the tab shows context like "StackShop – Product Name" on the product detail page.
+
+---
+
 ### Design
 
 Issues that affected visual consistency or layout.
@@ -123,7 +145,7 @@ Quick reference by category.
 | **Functionality** | 1 | Subcategory dropdown same for every category | Fixed |
 | | 2 | Image host not configured → runtime error | Fixed |
 | **UX** | 3 | Clear Filters — category dropdown label not reset | Fixed |
-| | 4 | Tab title and icon not app-specific | Pending |
+| | 4 | Tab title and icon not app-specific | Fixed |
 | **Design** | 5 | Product cards inconsistent height | Pending |
 | | 6 | Features heading padding on product detail | Pending |
 
