@@ -48,6 +48,28 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 
 ---
 
+#### 2. Runtime error when search returned no results (unconfigured image host) — **Fixed**
+
+**What I saw:** When searching for something that matched no products (e.g. typing "x"), or when products from the list used a different image host, the app threw a runtime error:  
+`Invalid src prop ... hostname "images-na.ssl-images-amazon.com" is not configured under images in next.config.js`
+
+**Root cause:** Some products in the sample data use images from `images-na.ssl-images-amazon.com`. Next.js `next/image` only allows hostnames listed in `next.config.ts`; only `m.media-amazon.com` was configured. When any product with those image URLs was rendered, the component threw.
+
+**Fix:** In `next.config.ts`, added the second host to `images.remotePatterns`:
+
+```ts
+{
+  protocol: 'https',
+  hostname: 'images-na.ssl-images-amazon.com',
+}
+```
+
+**Why this approach:** The data uses two Amazon image hosts; allowing the second one prevents the crash without changing the data.
+
+**Enhancement — validation and fallback:** To handle any future or third-party image URLs whose host isn’t in `next.config`, I added a small validation layer so the app never crashes on an unknown host. In `lib/image-utils.ts`, an allowed-hosts list (kept in sync with `next.config` `remotePatterns`) and an `isAllowedImageUrl(url)` helper check the URL before we pass it to `next/image`. If the host isn’t allowed, we render a fallback (“Image unavailable”) instead of throwing. This is used on the product list and product detail pages so unknown image URLs show a safe fallback instead of a runtime error.
+
+---
+
 ### UX
 
 Issues that affected user flow, clarity, or expectations.
@@ -81,7 +103,7 @@ Quick reference by category.
 | Category | # | Issue | Status |
 |----------|---|--------|--------|
 | **Functionality** | 1 | Subcategory dropdown same for every category | Fixed |
-| | 2 | Image host not configured → runtime error | Pending |
+| | 2 | Image host not configured → runtime error | Fixed |
 | **UX** | 3 | Clear Filters — category dropdown label not reset | Pending |
 | | 4 | Tab title and icon not app-specific | Pending |
 | **Design** | 5 | Product cards inconsistent height | Pending |

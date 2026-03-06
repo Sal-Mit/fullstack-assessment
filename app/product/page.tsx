@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { isAllowedImageUrl } from '@/lib/image-utils';
 
 interface Product {
   stacklineSku: string;
@@ -69,7 +70,8 @@ export default function ProductPage() {
             <Card className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="relative h-96 w-full bg-muted">
-                  {product.imageUrls[selectedImage] && (
+                  {product.imageUrls[selectedImage] &&
+                  isAllowedImageUrl(product.imageUrls[selectedImage]) ? (
                     <Image
                       src={product.imageUrls[selectedImage]}
                       alt={product.title}
@@ -78,6 +80,10 @@ export default function ProductPage() {
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       priority
                     />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      Image unavailable
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -93,13 +99,19 @@ export default function ProductPage() {
                       selectedImage === idx ? 'border-primary' : 'border-muted'
                     }`}
                   >
-                    <Image
-                      src={url}
-                      alt={`${product.title} - Image ${idx + 1}`}
-                      fill
-                      className="object-contain p-2"
-                      sizes="100px"
-                    />
+                    {isAllowedImageUrl(url) ? (
+                      <Image
+                        src={url}
+                        alt={`${product.title} - Image ${idx + 1}`}
+                        fill
+                        className="object-contain p-2"
+                        sizes="100px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                        —
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
