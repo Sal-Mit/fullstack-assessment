@@ -34,7 +34,7 @@ After receiving the codebase, I focused on understanding the application from a 
 2. **Prioritize by impact** — I listed every issue that affected correctness or user experience. My priority was: *whatever we show to the user should work and feel consistent.*
 3. **Fix, then document** — For each bug I fix, I add it to this document: what I saw, root cause, fix, and why. That way the README grows with the work and stays accurate.
 
-Below, issues are **grouped by category**. Each bug’s full write-up is added here **after** it’s fixed. Where relevant, I include screenshots (before/after).
+Below, issues are **grouped by category**. Each bug’s full write-up is added here **after** it’s fixed. Where relevant, I include before fix screenshots.
 
 ---
 
@@ -47,7 +47,7 @@ Below, issues are **grouped by category**. Each bug’s full write-up is added h
 Issues that affected correct behavior or caused errors.
 
 <a id="bug-1"></a>
-#### 1. Subcategory dropdown showed same options for every category — **Fixed**
+#### 1. Subcategory dropdown showed same options for every category
 
 **What I saw:** After selecting a category (e.g. "Tablets"), the subcategory dropdown appeared but listed subcategories from *all* categories, not just the selected one. This made filtering misleading.
 
@@ -67,10 +67,13 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 ---
 
 <a id="bug-2"></a>
-#### 2. Runtime error when search returned no results (unconfigured image host) — **Fixed**
+#### 2. Runtime error when search returned no results (unconfigured image host)
 
 **What I saw:** When searching for something that matched no products (e.g. typing "x"), or when products from the list used a different image host, the app threw a runtime error:  
 `Invalid src prop ... hostname "images-na.ssl-images-amazon.com" is not configured under images in next.config.js`
+
+**Screenshot:**  
+![Application error from unconfigured image host](docs/screenshots/image_error.png)
 
 **Root cause:** Some products in the sample data use images from `images-na.ssl-images-amazon.com`. Next.js `next/image` only allows hostnames listed in `next.config.ts`; only `m.media-amazon.com` was configured. When any product with those image URLs was rendered, the component threw.
 
@@ -95,7 +98,7 @@ fetch(`/api/subcategories?category=${encodeURIComponent(selectedCategory)}`)
 Issues that affected user flow, clarity, or expectations.
 
 <a id="bug-3"></a>
-#### 3. After "Clear Filters", category dropdown still showed last selected value — **Fixed**
+#### 3. After "Clear Filters", category dropdown still showed last selected value 
 
 **What I saw:** Clicking "Clear Filters" correctly cleared the product results, but the category dropdown still displayed the previously selected category name instead of the placeholder "All Categories".
 
@@ -118,7 +121,7 @@ The existing `onValueChange` already maps empty string to `undefined` (`value ||
 ---
 
 <a id="bug-4"></a>
-#### 4. Tab showed "Create Next App" and Next.js icon instead of app branding — **Fixed**
+#### 4. Tab showed "Create Next App" and Next.js icon instead of app branding
 
 **What I saw:** The browser tab showed the default Next.js favicon and the title "Create Next App" instead of the application name and app-specific branding.
 
@@ -141,9 +144,12 @@ export const metadata: Metadata = {
 ---
 
 <a id="bug-5"></a>
-#### 5. Product list showed only 20 products with no way to see more (misleading) — **Fixed**
+#### 5. Product list showed only 20 products with no way to see more (misleading)
 
 **What I saw:** With "All categories" selected, the list showed "Showing 20 products" and only 20 cards. There was no indication that more products existed and no way to view them, which was misleading.
+
+**Screenshot:**  
+![Showing 20 products with no indication of more](docs/screenshots/not_showing_all_products.png)
 
 **Root cause:** The API was called with `limit=20` and no `offset`; the UI displayed only the count of the current slice (`products.length`) and had no pagination.
 
@@ -161,7 +167,7 @@ export const metadata: Metadata = {
 Issues that affected visual consistency or layout.
 
 <a id="bug-6"></a>
-#### 6. Product list cards had inconsistent height (View Details button not aligned) — **Fixed**
+#### 6. Product list cards had inconsistent height (View Details button not aligned)
 
 **What I saw:** Product cards in the grid had different heights because the "View Details" button sat right under the content. Cards with longer titles or more badges pushed the button down, making the grid look uneven.
 
@@ -182,7 +188,7 @@ The Card already had `flex flex-col h-full`, so no change there.
 ---
 
 <a id="bug-7"></a>
-#### 7. Product detail — Features section had uneven padding above the heading — **Fixed**
+#### 7. Product detail — Features section had uneven padding above the heading
 
 **What I saw:** On the product detail page, the "Features" card had a large gap above the "Features" heading compared to the left edge and the top border of the card, so the spacing felt inconsistent.
 
